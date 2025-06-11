@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
-import { SignOutButton } from "./SignOutButton";
+import { WalletStatusPanel } from "./WalletStatusPanel";
+import { WalletConnection } from "./WalletConnection";
+import { useAuth } from "./WalletAuthProvider";
 
 export function TradingDashboard() {
   const [showCreateAgent, setShowCreateAgent] = useState(false);
@@ -11,7 +11,7 @@ export function TradingDashboard() {
     { id: 3, type: 'agent', message: 'Your portfolio is up 12.5% this month! Your DeFi agent has been performing particularly well with a 18% gain.' }
   ]);
   const [newMessage, setNewMessage] = useState('');
-  const loggedInUser = useQuery(api.auth.loggedInUser);
+  const { user, isGuest, signOut } = useAuth();
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
@@ -27,16 +27,18 @@ export function TradingDashboard() {
         setChatMessages(prev => [...prev, {
           id: Date.now() + 1,
           type: 'agent',
-          message: 'I understand your request. Let me analyze the current market conditions and get back to you with recommendations.'
+          message: isGuest 
+            ? 'This is a demo response. Connect your wallet for real trading features!'
+            : 'I understand your request. Let me analyze the current market conditions and get back to you with recommendations.'
         }]);
       }, 1000);
     }
   };
 
   const agents = [
-    { id: 1, name: 'DeFi Hunter', status: 'Active', pnl: '+18.2%', color: 'success' },
-    { id: 2, name: 'Arbitrage Bot', status: 'Active', pnl: '+7.8%', color: 'success' },
-    { id: 3, name: 'Yield Farmer', status: 'Paused', pnl: '-2.1%', color: 'warning' },
+    { id: 1, name: 'DeFi Hunter', status: isGuest ? 'Demo' : 'Active', pnl: '+18.2%', color: 'success' },
+    { id: 2, name: 'Arbitrage Bot', status: isGuest ? 'Demo' : 'Active', pnl: '+7.8%', color: 'success' },
+    { id: 3, name: 'Yield Farmer', status: isGuest ? 'Demo' : 'Paused', pnl: '-2.1%', color: 'warning' },
   ];
 
   const transactions = [
@@ -60,8 +62,17 @@ export function TradingDashboard() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <span className="font-bold">Welcome, {loggedInUser?.email?.split('@')[0] || 'Trader'}!</span>
-            <SignOutButton />
+            <span className="font-bold">
+              Welcome, {user?.name || 'Trader'}!
+              {isGuest && <span className="text-sm text-gray-600"> (Guest)</span>}
+            </span>
+            {!isGuest && <WalletConnection />}
+            <button 
+              onClick={signOut}
+              className="nb-button px-4 py-2 text-sm font-bold"
+            >
+              Sign Out
+            </button>
           </div>
         </div>
       </nav>
@@ -71,17 +82,47 @@ export function TradingDashboard() {
         <div className="nb-panel p-6">
           <h2 className="text-3xl font-bold mb-4">🚀 Welcome to Your Trading Command Center</h2>
           <p className="text-lg mb-6 font-medium">
-            Manage your AI-powered trading agents, monitor your portfolio, and execute trades on the blockchain.
+            {isGuest 
+              ? "You're in demo mode. Connect your wallet for real trading features!"
+              : "Manage your AI-powered trading agents, monitor your portfolio, and execute trades on the blockchain."
+            }
           </p>
           <button 
             onClick={() => setShowCreateAgent(true)}
             className="nb-button-accent px-6 py-3 text-lg"
           >
-            🤖 Create Your First Trading Agent
+            🤖 {isGuest ? 'Demo: Create Trading Agent' : 'Create Your First Trading Agent'}
           </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Wallet Status Panel */}
+          {!isGuest && (
+            <div className="lg:col-span-3">
+              <WalletStatusPanel />
+            </div>
+          )}
+          
+          {/* Guest Mode Notice */}
+          {isGuest && (
+            <div className="lg:col-span-3">
+              <div className="nb-panel-warning p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">👤 Guest Mode Active</h3>
+                    <p className="font-medium">You're viewing demo data. Connect your wallet for real trading features.</p>
+                  </div>
+                  <button 
+                    onClick={signOut}
+                    className="nb-button-accent px-6 py-3 text-lg"
+                  >
+                    🔗 Connect Wallet
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Agent Chat */}
           <div className="lg:col-span-2">
             <div className="nb-panel-white p-6 h-96">
@@ -121,17 +162,17 @@ export function TradingDashboard() {
           <div className="space-y-4">
             <div className="nb-panel-success p-4">
               <h4 className="font-bold text-sm mb-2">💰 TOTAL PORTFOLIO</h4>
-              <p className="text-2xl font-bold">$47,832.50</p>
+              <p className="text-2xl font-bold">{isGuest ? '$47,832.50 (Demo)' : '$47,832.50'}</p>
               <p className="text-sm font-medium text-green-700">+12.5% this month</p>
             </div>
             <div className="nb-panel-white p-4">
               <h4 className="font-bold text-sm mb-2">🏦 WALLET BALANCE</h4>
-              <p className="text-xl font-bold">$8,234.12</p>
+              <p className="text-xl font-bold">{isGuest ? '$8,234.12 (Demo)' : '$8,234.12'}</p>
               <p className="text-sm font-medium">Available for trading</p>
             </div>
             <div className="nb-panel-accent p-4">
               <h4 className="font-bold text-sm mb-2">🤖 AGENT FUNDS</h4>
-              <p className="text-xl font-bold">$39,598.38</p>
+              <p className="text-xl font-bold">{isGuest ? '$39,598.38 (Demo)' : '$39,598.38'}</p>
               <p className="text-sm font-medium">Allocated to 3 agents</p>
             </div>
           </div>
@@ -191,7 +232,7 @@ export function TradingDashboard() {
       {showCreateAgent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="nb-panel-white p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold mb-4">🤖 Create New Trading Agent</h3>
+            <h3 className="text-xl font-bold mb-4">🤖 {isGuest ? 'Demo: Create New Trading Agent' : 'Create New Trading Agent'}</h3>
             <div className="space-y-4">
               <div>
                 <label className="block font-bold mb-2">Agent Name</label>
@@ -218,6 +259,11 @@ export function TradingDashboard() {
                   <option>Aggressive</option>
                 </select>
               </div>
+              {isGuest && (
+                <div className="nb-panel-warning p-3">
+                  <p className="text-sm font-medium">⚠️ Demo mode: Agent will not execute real trades</p>
+                </div>
+              )}
             </div>
             <div className="flex space-x-3 mt-6">
               <button 
@@ -230,7 +276,7 @@ export function TradingDashboard() {
                 onClick={() => setShowCreateAgent(false)}
                 className="flex-1 nb-button-accent py-2"
               >
-                Create Agent
+                {isGuest ? 'Create Demo Agent' : 'Create Agent'}
               </button>
             </div>
           </div>

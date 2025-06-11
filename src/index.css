@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import '@tomo-inc/tomo-evm-kit/styles.css';
+
 :root {
   --color-light: #ffffff;
   --color-dark: #171717;
@@ -158,6 +160,60 @@ body {
   box-shadow: 2px 2px 0 0 #000;
   margin-right: auto;
   max-width: 70%;
+}
+
+/* Tomo Modal Overrides for Neobrutalism */
+[data-tomo-modal] {
+  background: var(--nb-bg) !important;
+}
+
+[data-tomo-modal-content] {
+  background: white !important;
+  border: 4px solid var(--nb-border) !important;
+  border-radius: var(--nb-radius) !important;
+  box-shadow: var(--nb-shadow) !important;
+}
+
+[data-tomo-modal-header] {
+  border-bottom: 4px solid var(--nb-border) !important;
+  background: var(--nb-surface) !important;
+  font-weight: bold !important;
+  color: var(--nb-text) !important;
+}
+
+[data-tomo-wallet-option] {
+  background: white !important;
+  border: 3px solid var(--nb-border) !important;
+  border-radius: var(--nb-radius) !important;
+  box-shadow: 2px 2px 0 0 #000 !important;
+  font-weight: bold !important;
+  color: var(--nb-text) !important;
+  transition: transform 0.1s ease !important;
+}
+
+[data-tomo-wallet-option]:hover {
+  transform: translate(1px, 1px) !important;
+  box-shadow: 1px 1px 0 0 #000 !important;
+  background: var(--nb-accent) !important;
+}
+
+[data-tomo-wallet-option]:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: none !important;
+}
+
+[data-tomo-close-button] {
+  background: var(--nb-warning) !important;
+  border: 3px solid var(--nb-border) !important;
+  border-radius: var(--nb-radius) !important;
+  box-shadow: 2px 2px 0 0 #000 !important;
+  font-weight: bold !important;
+  color: var(--nb-text) !important;
+}
+
+[data-tomo-close-button]:hover {
+  transform: translate(1px, 1px) !important;
+  box-shadow: 1px 1px 0 0 #000 !important;
 }
 
 /* only use this to update the style of the auth input fields. use a different class for all other input fields */
