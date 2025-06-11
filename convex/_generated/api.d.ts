@@ -13,9 +13,14 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as agents from "../agents.js";
 import type * as auth from "../auth.js";
+import type * as demoData from "../demoData.js";
+import type * as funds from "../funds.js";
 import type * as http from "../http.js";
+import type * as portfolio from "../portfolio.js";
 import type * as router from "../router.js";
+import type * as transactions from "../transactions.js";
 import type * as walletAuth from "../walletAuth.js";
 import type * as walletAuthNode from "../walletAuthNode.js";
 
@@ -28,9 +33,14 @@ import type * as walletAuthNode from "../walletAuthNode.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  agents: typeof agents;
   auth: typeof auth;
+  demoData: typeof demoData;
+  funds: typeof funds;
   http: typeof http;
+  portfolio: typeof portfolio;
   router: typeof router;
+  transactions: typeof transactions;
   walletAuth: typeof walletAuth;
   walletAuthNode: typeof walletAuthNode;
 }>;

@@ -1,17 +1,34 @@
 import { useState } from "react";
+import { useQuery } from 'convex/react';
+import { api } from '../convex/_generated/api';
 import { WalletStatusPanel } from "./WalletStatusPanel";
 import { WalletConnection } from "./WalletConnection";
 import { useAuth } from "./WalletAuthProvider";
+import { CreateAgentModal } from "./components/CreateAgentModal";
+import { FundAgentModal } from "./components/FundAgentModal";
 
 export function TradingDashboard() {
   const [showCreateAgent, setShowCreateAgent] = useState(false);
+  const [showFundAgent, setShowFundAgent] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState([
     { id: 1, type: 'agent', message: 'Hello! I\'m your AI trading agent. How can I help you today?' },
     { id: 2, type: 'user', message: 'What\'s my portfolio performance?' },
     { id: 3, type: 'agent', message: 'Your portfolio is up 12.5% this month! Your DeFi agent has been performing particularly well with a 18% gain.' }
   ]);
   const [newMessage, setNewMessage] = useState('');
-  const { user, isGuest, signOut } = useAuth();
+  const { user, isGuest, signOut, sessionId } = useAuth();
+
+  // Fetch data from backend
+  const portfolioStats = useQuery(api.portfolio.getPortfolioStats, { sessionId: sessionId || undefined });
+  const recentTransactions = useQuery(api.transactions.getRecentTransactions, { 
+    sessionId: sessionId || undefined, 
+    limit: 5 
+  });
+
+  // Demo data for guests
+  const demoAgents = useQuery(api.agents.getDemoAgents, isGuest ? {} : "skip");
+  const agents = isGuest ? demoAgents : portfolioStats?.agents;
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
@@ -35,17 +52,29 @@ export function TradingDashboard() {
     }
   };
 
-  const agents = [
-    { id: 1, name: 'DeFi Hunter', status: isGuest ? 'Demo' : 'Active', pnl: '+18.2%', color: 'success' },
-    { id: 2, name: 'Arbitrage Bot', status: isGuest ? 'Demo' : 'Active', pnl: '+7.8%', color: 'success' },
-    { id: 3, name: 'Yield Farmer', status: isGuest ? 'Demo' : 'Paused', pnl: '-2.1%', color: 'warning' },
-  ];
+  const handleFundAgent = (agentId: string) => {
+    setSelectedAgentId(agentId);
+    setShowFundAgent(true);
+  };
 
-  const transactions = [
-    { id: 1, type: 'Buy', asset: 'ETH', amount: '2.5', price: '$3,245', time: '2 min ago' },
-    { id: 2, type: 'Sell', asset: 'USDC', amount: '1,000', price: '$1.00', time: '15 min ago' },
-    { id: 3, type: 'Swap', asset: 'UNI → ETH', amount: '50', price: '$8.12', time: '1 hour ago' },
-  ];
+  const formatTransactionAsset = (tx: any) => {
+    if (tx.type === 'swap' && tx.baseAsset && tx.quoteAsset) {
+      return `${tx.baseAsset} → ${tx.quoteAsset}`;
+    }
+    return tx.asset;
+  };
+
+  const formatTime = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  };
 
   return (
     <div className="min-h-screen nb-grid-bg">
@@ -90,8 +119,9 @@ export function TradingDashboard() {
           <button 
             onClick={() => setShowCreateAgent(true)}
             className="nb-button-accent px-6 py-3 text-lg"
+            disabled={isGuest}
           >
-            🤖 {isGuest ? 'Demo: Create Trading Agent' : 'Create Your First Trading Agent'}
+            🤖 {isGuest ? 'Demo Mode - View Only' : 'Create Your First Trading Agent'}
           </button>
         </div>
 
@@ -162,18 +192,27 @@ export function TradingDashboard() {
           <div className="space-y-4">
             <div className="nb-panel-success p-4">
               <h4 className="font-bold text-sm mb-2">💰 TOTAL PORTFOLIO</h4>
-              <p className="text-2xl font-bold">{isGuest ? '$47,832.50 (Demo)' : '$47,832.50'}</p>
-              <p className="text-sm font-medium text-green-700">+12.5% this month</p>
+              <p className="text-2xl font-bold">
+                ${portfolioStats?.totalValue?.toLocaleString() || '0'}{isGuest && ' (Demo)'}
+              </p>
+              <p className="text-sm font-medium text-green-700">
+                {portfolioStats?.totalPnL && portfolioStats.totalPnL >= 0 ? '+' : ''}
+                ${portfolioStats?.totalPnL?.toLocaleString() || '0'} P&L
+              </p>
             </div>
             <div className="nb-panel-white p-4">
-              <h4 className="font-bold text-sm mb-2">🏦 WALLET BALANCE</h4>
-              <p className="text-xl font-bold">{isGuest ? '$8,234.12 (Demo)' : '$8,234.12'}</p>
-              <p className="text-sm font-medium">Available for trading</p>
+              <h4 className="font-bold text-sm mb-2">🏦 ALLOCATED FUNDS</h4>
+              <p className="text-xl font-bold">
+                ${portfolioStats?.totalAllocated?.toLocaleString() || '0'}{isGuest && ' (Demo)'}
+              </p>
+              <p className="text-sm font-medium">Allocated to agents</p>
             </div>
             <div className="nb-panel-accent p-4">
-              <h4 className="font-bold text-sm mb-2">🤖 AGENT FUNDS</h4>
-              <p className="text-xl font-bold">{isGuest ? '$39,598.38 (Demo)' : '$39,598.38'}</p>
-              <p className="text-sm font-medium">Allocated to 3 agents</p>
+              <h4 className="font-bold text-sm mb-2">🤖 ACTIVE AGENTS</h4>
+              <p className="text-xl font-bold">
+                {portfolioStats?.activeAgentCount || 0} / {portfolioStats?.agentCount || 0}
+              </p>
+              <p className="text-sm font-medium">Trading agents</p>
             </div>
           </div>
         </div>
@@ -186,25 +225,61 @@ export function TradingDashboard() {
               <button 
                 onClick={() => setShowCreateAgent(true)}
                 className="nb-button px-4 py-2 text-sm"
+                disabled={isGuest}
               >
                 + Create Agent
               </button>
             </div>
             <div className="space-y-3">
-              {agents.map((agent) => (
-                <div key={agent.id} className={`nb-panel-${agent.color} p-4`}>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="font-bold">{agent.name}</h4>
-                      <p className="text-sm font-medium">Status: {agent.status}</p>
+              {agents && agents.length > 0 ? (
+                agents.map((agent) => {
+                  const agentId = 'id' in agent ? agent.id : agent._id;
+                  const getStatusColor = (status: string) => {
+                    switch (status) {
+                      case 'active': return 'success';
+                      case 'paused': return 'warning';
+                      case 'stopped': return 'error';
+                      default: return 'white';
+                    }
+                  };
+
+                  return (
+                    <div key={agentId} className={`nb-panel-${getStatusColor(agent.status)} p-4`}>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-bold">{agent.name}</h4>
+                          <p className="text-sm font-medium">
+                            Status: {agent.status}{isGuest && ' (Demo)'}
+                          </p>
+                          <p className="text-xs font-medium">
+                            Trades: {agent.totalTrades} | Win Rate: {(agent.winRate * 100).toFixed(1)}%
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`font-bold text-lg ${agent.totalPnL >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                            {agent.totalPnL >= 0 ? '+' : ''}${agent.totalPnL?.toLocaleString()}
+                          </p>
+                          <p className="text-sm font-medium">P&L</p>
+                          {!isGuest && (
+                            <button
+                              onClick={() => handleFundAgent(agentId)}
+                              className="mt-2 text-xs nb-button px-2 py-1"
+                            >
+                              Fund
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-lg">{agent.pnl}</p>
-                      <p className="text-sm font-medium">P&L</p>
-                    </div>
-                  </div>
+                  );
+                })
+              ) : (
+                <div className="nb-panel p-4 text-center">
+                  <p className="font-medium text-gray-600">
+                    {isGuest ? 'Loading demo agents...' : 'No trading agents yet'}
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -212,75 +287,55 @@ export function TradingDashboard() {
           <div className="nb-panel-white p-6">
             <h3 className="text-xl font-bold mb-4">📊 Recent Transactions</h3>
             <div className="space-y-3">
-              {transactions.map((tx) => (
-                <div key={tx.id} className="nb-panel p-3">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-bold">{tx.type} {tx.asset}</p>
-                      <p className="text-sm font-medium">{tx.amount} @ {tx.price}</p>
+              {recentTransactions && recentTransactions.length > 0 ? (
+                recentTransactions.map((tx) => (
+                  <div key={tx._id} className="nb-panel p-3">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-bold">
+                          {tx.type.toUpperCase()} {formatTransactionAsset(tx)}
+                        </p>
+                        <p className="text-sm font-medium">
+                          {tx.amount.toFixed(4)} @ ${tx.price.toLocaleString()}
+                        </p>
+                        <p className={`text-xs font-medium ${tx.pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          P&L: {tx.pnl >= 0 ? '+' : ''}${tx.pnl.toFixed(2)}
+                        </p>
+                      </div>
+                      <p className="text-sm font-medium">{formatTime(tx.timestamp)}</p>
                     </div>
-                    <p className="text-sm font-medium">{tx.time}</p>
                   </div>
+                ))
+              ) : (
+                <div className="nb-panel p-4 text-center">
+                  <p className="font-medium text-gray-600">
+                    {isGuest ? 'Loading demo transactions...' : 'No transactions yet'}
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Create Agent Modal */}
-      {showCreateAgent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="nb-panel-white p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold mb-4">🤖 {isGuest ? 'Demo: Create New Trading Agent' : 'Create New Trading Agent'}</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block font-bold mb-2">Agent Name</label>
-                <input type="text" className="w-full nb-input px-3 py-2" placeholder="e.g., DeFi Hunter" />
-              </div>
-              <div>
-                <label className="block font-bold mb-2">Strategy Type</label>
-                <select className="w-full nb-input px-3 py-2">
-                  <option>Arbitrage</option>
-                  <option>DeFi Yield Farming</option>
-                  <option>Swing Trading</option>
-                  <option>Market Making</option>
-                </select>
-              </div>
-              <div>
-                <label className="block font-bold mb-2">Initial Funding ($)</label>
-                <input type="number" className="w-full nb-input px-3 py-2" placeholder="1000" />
-              </div>
-              <div>
-                <label className="block font-bold mb-2">Risk Level</label>
-                <select className="w-full nb-input px-3 py-2">
-                  <option>Conservative</option>
-                  <option>Moderate</option>
-                  <option>Aggressive</option>
-                </select>
-              </div>
-              {isGuest && (
-                <div className="nb-panel-warning p-3">
-                  <p className="text-sm font-medium">⚠️ Demo mode: Agent will not execute real trades</p>
-                </div>
-              )}
-            </div>
-            <div className="flex space-x-3 mt-6">
-              <button 
-                onClick={() => setShowCreateAgent(false)}
-                className="flex-1 nb-button py-2"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={() => setShowCreateAgent(false)}
-                className="flex-1 nb-button-accent py-2"
-              >
-                {isGuest ? 'Create Demo Agent' : 'Create Agent'}
-              </button>
-            </div>
-          </div>
-        </div>
+      {showCreateAgent && !isGuest && (
+        <CreateAgentModal
+          onClose={() => setShowCreateAgent(false)}
+          sessionId={sessionId}
+        />
+      )}
+
+      {/* Fund Agent Modal */}
+      {showFundAgent && selectedAgentId && !isGuest && (
+        <FundAgentModal
+          agentId={selectedAgentId}
+          onClose={() => {
+            setShowFundAgent(false);
+            setSelectedAgentId(null);
+          }}
+          sessionId={sessionId}
+        />
       )}
     </div>
   );
