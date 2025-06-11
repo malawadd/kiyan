@@ -82,7 +82,7 @@ export function TradingDashboard() {
       <nav className="nb-panel-white p-4 m-4 mb-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-8">
-            <h1 className="text-2xl font-bold">🤖 TradingBot Pro</h1>
+            <h1 className="text-2xl font-bold">🤖 Kiyan</h1>
             <div className="flex space-x-6">
               <button className="font-bold text-black hover:underline">Dashboard</button>
               <button className="font-bold text-gray-600 hover:text-black hover:underline">Agents</button>

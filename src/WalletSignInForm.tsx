@@ -41,7 +41,7 @@ export function WalletSignInForm() {
     <div className="min-h-screen nb-grid-bg flex items-center justify-center p-4">
       <div className="nb-panel-white p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">🤖 TradingBot Pro</h1>
+          <h1 className="text-4xl font-bold mb-4">🤖 Kiyan</h1>
           <p className="text-lg font-medium">
             Connect your wallet to start trading with AI agents
           </p>

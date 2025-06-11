@@ -2,14 +2,14 @@ import React from 'react';
 import { getDefaultConfig, TomoEVMKitProvider } from '@tomo-inc/tomo-evm-kit';
 import { metaMaskWallet, rainbowWallet, walletConnectWallet } from '@tomo-inc/tomo-evm-kit/wallets';
 import { WagmiProvider } from 'wagmi';
-import { mainnet, polygon, optimism, arbitrum, base } from 'wagmi/chains';
+import { storyAeneid, story } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 const config = getDefaultConfig({
   clientId: '9TJ5ODBE68qK0yY7F8FSn5cScSdZZ1btWx3hxKlwYAlsaTr91H2EIR7CtoP7Ap0Il6h2GHmkXqIYD92o3E2QqZyP',
-  appName: 'TradingBot Pro',
+  appName: 'Kiyan',
   projectId: 'YOUR_PROJECT_ID', // Replace with your WalletConnect project ID
-  chains: [mainnet, polygon, optimism, arbitrum, base],
+  chains: [storyAeneid, story],
   ssr: false,
   wallets: [
     {
