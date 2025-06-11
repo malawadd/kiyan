@@ -1,0 +1,7 @@
+{
+    "node": {
+        "external": [
+            "@auth/core"
+        ]
+    }
+}

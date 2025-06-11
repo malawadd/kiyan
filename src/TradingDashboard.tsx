@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from 'convex/react';
+import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../convex/_generated/api';
 import { WalletStatusPanel } from "./WalletStatusPanel";
 import { WalletConnection } from "./WalletConnection";
@@ -8,7 +9,7 @@ import { CreateAgentModal } from "./components/CreateAgentModal";
 import { FundAgentModal } from "./components/FundAgentModal";
 
 export function TradingDashboard() {
-  const [showCreateAgent, setShowCreateAgent] = useState(false);
+  const navigate = useNavigate();
   const [showFundAgent, setShowFundAgent] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState([
@@ -84,8 +85,12 @@ export function TradingDashboard() {
           <div className="flex items-center space-x-8">
             <h1 className="text-2xl font-bold">🤖 Kiyan</h1>
             <div className="flex space-x-6">
-              <button className="font-bold text-black hover:underline">Dashboard</button>
-              <button className="font-bold text-gray-600 hover:text-black hover:underline">Agents</button>
+              <Link to="/" className="font-bold text-black hover:underline">Dashboard</Link>
+              {!isGuest && (
+                <Link to="/create-agent" className="font-bold text-gray-600 hover:text-black hover:underline">
+                  Import Agent
+                </Link>
+              )}
               <button className="font-bold text-gray-600 hover:text-black hover:underline">Funds</button>
               <button className="font-bold text-gray-600 hover:text-black hover:underline">Analytics</button>
             </div>
@@ -117,11 +122,11 @@ export function TradingDashboard() {
             }
           </p>
           <button 
-            onClick={() => setShowCreateAgent(true)}
+            onClick={() => navigate('/create-agent')}
             className="nb-button-accent px-6 py-3 text-lg"
             disabled={isGuest}
           >
-            🤖 {isGuest ? 'Demo Mode - View Only' : 'Create Your First Trading Agent'}
+            🤖 {isGuest ? 'Demo Mode - View Only' : 'Import Your First Agent'}
           </button>
         </div>
 
@@ -223,11 +228,11 @@ export function TradingDashboard() {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">🤖 Your Trading Agents</h3>
               <button 
-                onClick={() => setShowCreateAgent(true)}
+                onClick={() => navigate('/create-agent')}
                 className="nb-button px-4 py-2 text-sm"
                 disabled={isGuest}
               >
-                + Create Agent
+                + Import Agent
               </button>
             </div>
             <div className="space-y-3">
@@ -247,7 +252,9 @@ export function TradingDashboard() {
                     <div key={agentId} className={`nb-panel-${getStatusColor(agent.status)} p-4`}>
                       <div className="flex justify-between items-center">
                         <div>
-                          <h4 className="font-bold">{agent.name}</h4>
+                          <Link to={`/agent/${agentId}`} className="font-bold hover:underline">
+                            {agent.name}
+                          </Link>
                           <p className="text-sm font-medium">
                             Status: {agent.status}{isGuest && ' (Demo)'}
                           </p>
@@ -317,14 +324,6 @@ export function TradingDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Create Agent Modal */}
-      {showCreateAgent && !isGuest && (
-        <CreateAgentModal
-          onClose={() => setShowCreateAgent(false)}
-          sessionId={sessionId}
-        />
-      )}
 
       {/* Fund Agent Modal */}
       {showFundAgent && selectedAgentId && !isGuest && (

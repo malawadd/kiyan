@@ -49,10 +49,25 @@ const applicationTables = {
       stopLoss: v.number(),
       takeProfit: v.number(),
     }),
+    // New fields for Fleek integration
+    fleekId: v.optional(v.string()),
+    fleekData: v.optional(v.any()),
+    // New fields for Story Protocol integration
+    storyInfo: v.optional(v.object({
+      ipId: v.string(),
+      vault: v.string(),
+      createdAt: v.number()
+    })),
+    tokenSale: v.optional(v.object({
+      amount: v.number(),
+      priceWei: v.string(),
+      createdAt: v.number()
+    }))
   })
     .index("by_user", ["userId"])
     .index("by_status", ["status"])
-    .index("by_user_and_status", ["userId", "status"]),
+    .index("by_user_and_status", ["userId", "status"])
+    .index("by_fleek_id", ["fleekId"]),
 
   // Fund allocations to agents
   funds: defineTable({

@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import { useMutation } from 'convex/react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { TradingDashboard } from './TradingDashboard';
+import { CreateAgentPage } from './pages/CreateAgentPage';
+import { AgentDetailPage } from './pages/AgentDetailPage';
 import { useAuth } from './WalletAuthProvider';
 import { api } from '../convex/_generated/api';
 
@@ -19,5 +22,12 @@ export function AuthenticatedApp() {
     return null;
   }
 
-  return <TradingDashboard />;
+  return (
+    <Routes>
+      <Route path="/" element={<TradingDashboard />} />
+      <Route path="/create-agent" element={<CreateAgentPage />} />
+      <Route path="/agent/:id" element={<AgentDetailPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }
