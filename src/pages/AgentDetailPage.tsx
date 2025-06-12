@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate , Link } from 'react-router-dom';
+import { useParams , Link } from 'react-router-dom';
 import { useQuery } from 'convex/react';
 import { useAccount } from 'wagmi';
 import { api } from '../../convex/_generated/api';

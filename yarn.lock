@@ -1966,6 +1966,19 @@
     rpc-websockets "^9.0.2"
     superstruct "^2.0.2"
 
+"@story-protocol/core-sdk@^1.3.2":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@story-protocol/core-sdk/-/core-sdk-1.3.2.tgz#f3a8d8a3d0f99c8a6525a9c993a24efa8629868e"
+  integrity sha512-wnIZUoOv8vVtqSdcRm9EZW+Ne6NZupfNnVIFs4zppj3fnvLFUifGM03H7gWIuRAaWJK2BbFxJHNlQjtV9c+zeA==
+  dependencies:
+    "@scure/bip32" "^1.6.2"
+    abitype "^0.10.2"
+    axios "^1.5.1"
+    bs58 "^6.0.0"
+    dotenv "^16.3.1"
+    multiformats "9.9.0"
+    viem "^2.8.12"
+
 "@swc/helpers@^0.5.11":
   version "0.5.17"
   resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.5.17.tgz#5a7be95ac0f0bf186e7e6e890e7a6f6cda6ce971"
@@ -2776,6 +2789,11 @@ abitype@1.0.8, abitype@^1.0.6:
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.0.8.tgz#3554f28b2e9d6e9f35eb59878193eabd1b9f46ba"
   integrity sha512-ZeiI6h3GnW06uYDLx0etQtX/p8E24UaHHBj57RSjK7YBFe7iuVn07EDpOeP451D06sF27VOz9JJPlIKJmXgkEg==
 
+abitype@^0.10.2:
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.10.3.tgz#27ce7a7cdb9a80ccd732a3f3cf1ce6ff05266fce"
+  integrity sha512-tRN+7XIa7J9xugdbRzFv/95ka5ivR/sRe01eiWvM0HWWjHuigSZEACgKa0sj4wGuekTDtghCx+5Izk/cOi78pQ==
+
 abort-controller@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/abort-controller/-/abort-controller-3.0.0.tgz#eaf54d53b62bae4138e809ca225c8439a6efb392"
@@ -2960,7 +2978,7 @@ available-typed-arrays@^1.0.7:
   dependencies:
     possible-typed-array-names "^1.0.0"
 
-axios@^1.7.4, axios@^1.8.2:
+axios@^1.5.1, axios@^1.7.4, axios@^1.8.2:
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.9.0.tgz#25534e3b72b54540077d33046f77e3b8d7081901"
   integrity sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==
@@ -3109,7 +3127,7 @@ browserslist@^4.24.0, browserslist@^4.24.4:
     node-releases "^2.0.19"
     update-browserslist-db "^1.1.3"
 
-bs58@6.0.0:
+bs58@6.0.0, bs58@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/bs58/-/bs58-6.0.0.tgz#a2cda0130558535dd281a2f8697df79caaf425d8"
   integrity sha512-PD0wEnEYg6ijszw/u8s+iI3H17cTymlrwkKhDhPZq+Sokl3AU4htyBFTjAeNAlCCmg0f53g6ih3jATyCKftTfw==
@@ -3631,7 +3649,7 @@ dlv@^1.1.3:
   resolved "https://registry.yarnpkg.com/dlv/-/dlv-1.1.3.tgz#5c198a8a11453596e751494d49874bc7732f2e79"
   integrity sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==
 
-dotenv@^16.4.7:
+dotenv@^16.3.1, dotenv@^16.4.7:
   version "16.5.0"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.5.0.tgz#092b49f25f808f020050051d1ff258e404c78692"
   integrity sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==
@@ -5240,7 +5258,7 @@ msrcrypto@^1.5.6:
   resolved "https://registry.yarnpkg.com/msrcrypto/-/msrcrypto-1.5.8.tgz#be419be4945bf134d8af52e9d43be7fa261f4a1c"
   integrity sha512-ujZ0TRuozHKKm6eGbKHfXef7f+esIhEckmThVnz7RNyiOJd7a6MXj2JGBoL9cnPDW+JMG16MoTUh5X+XXjI66Q==
 
-multiformats@^9.4.2:
+multiformats@9.9.0, multiformats@^9.4.2:
   version "9.9.0"
   resolved "https://registry.yarnpkg.com/multiformats/-/multiformats-9.9.0.tgz#c68354e7d21037a8f1f8833c8ccd68618e8f1d37"
   integrity sha512-HoMUjhH9T8DDBNT+6xzkrd9ga/XiBI4xLr58LJACwK6G3HTOPeMz4nB4KJs33L2BelrIJa7P0VuNaVF3hMYfjg==
@@ -7073,7 +7091,7 @@ viem@2.23.2:
     ox "0.6.7"
     ws "8.18.0"
 
-viem@>=2.29.0, viem@^2.1.1, viem@^2.17.0, viem@^2.31.0:
+viem@>=2.29.0, viem@^2.1.1, viem@^2.17.0, viem@^2.31.0, viem@^2.8.12:
   version "2.31.0"
   resolved "https://registry.yarnpkg.com/viem/-/viem-2.31.0.tgz#2263426cce091d440e283b88183dff6f1d8bae5c"
   integrity sha512-U7OMQ6yqK+bRbEIarf2vqxL7unSEQvNxvML/1zG7suAmKuJmipqdVTVJGKBCJiYsm/EremyO2FS4dHIPpGv+eA==

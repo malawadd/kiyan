@@ -14,7 +14,7 @@ export const importAgent = action({
   handler: async (
     ctx: ActionCtx,
     args
-  ): Promise<Id<"agents">> => {
+  ): Promise<{ agentId: Id<"agents">, agentData: any }> => {
     // Fetch agent from Fleek API
     const response = await fetch(`https://api.fleek.xyz/api/v1/ai-agents/${args.fleekId}`, {
       headers: {
@@ -26,7 +26,8 @@ export const importAgent = action({
       throw new Error(`Failed to fetch agent: ${response.statusText}`);
     }
 
-    const agentData = await response.json();
+    const agentData  = await response.json();
+    // const agentData = apiResponse.data[0];
 
     // Create agent directly
     const agentId = await ctx.runMutation(api.fleekAgents.createFleekAgent, {
@@ -36,7 +37,7 @@ export const importAgent = action({
       fleekData: agentData,
     });
 
-    return agentId;
+    return { agentId, agentData };
   }
 });
 
