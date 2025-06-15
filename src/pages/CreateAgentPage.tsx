@@ -101,8 +101,7 @@ export function CreateAgentPage() {
                   </Link>
                 </>
               )}
-              <button className="font-bold text-gray-600 hover:text-black hover:underline">Funds</button>
-              <button className="font-bold text-gray-600 hover:text-black hover:underline">Analytics</button>
+              
             </div>
           </div>
           <div className="flex items-center space-x-4">

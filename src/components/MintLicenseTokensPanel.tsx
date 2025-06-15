@@ -35,16 +35,7 @@ export const MintLicenseTokensPanel: React.FC<MintLicenseTokensPanelProps> = ({ 
     setIsLoading(true);
     try {
       const client = await setupStoryClient();
-    //   const mint = await client.license.mintLicenseTokens({
-    //     //@ts-ignore
-    //       licensorIpId: response.ipId,
-    //       licenseTemplate: PIL_TEMPLATE_ADDRESS, // And here again
-          
-    //       licenseTermsId:licenseTermsId.toString(),
-    //       amount: 1,
-    //       maxMintingFee: BigInt(0), // disabled
-    //       maxRevenueShare: 100, // default
-    //     });
+   
       const tx = await client.license.mintLicenseTokens({
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 //@ts-ignore
@@ -55,7 +46,8 @@ export const MintLicenseTokensPanel: React.FC<MintLicenseTokensPanelProps> = ({ 
           maxRevenueShare: 100, // default
         amount: BigInt(amount),
       });
-      setSuccess(`Minted ${amount} license token(s)! Tx: ${tx.txHash || 'Success'}`);
+      const txUrl = `https://aeneid.storyscan.io/tx/${tx.txHash}`;
+      setSuccess(`${tx.txHash}`);
     } catch (err: any) {
       setError(err.message || 'Failed to mint license tokens');
     } finally {
@@ -80,7 +72,17 @@ export const MintLicenseTokensPanel: React.FC<MintLicenseTokensPanelProps> = ({ 
           />
         </div>
         {error && <div className="nb-panel-warning p-2 text-red-700 font-bold">{error}</div>}
-        {success && <div className="nb-panel-success p-2 text-green-700 font-bold">{success}</div>}
+        {success && <div className="nb-panel-success p-2 text-green-700 font-bold">
+            Minted {amount} license token(s)!&nbsp;
+      <a
+        href={`https://aeneid.storyscan.io/tx/${success}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline text-blue-600 hover:text-blue-800"
+      >
+        View Transaction
+      </a>
+            </div>}
         <button
           type="submit"
           disabled={isLoading}
