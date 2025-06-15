@@ -24,7 +24,7 @@ export function WalletBalance() {
             ) : balance ? (
               `${parseFloat(formatEther(balance.value)).toFixed(4)} ${balance.symbol}`
             ) : (
-              '0 ETH'
+              '0 IP'
             )}
           </p>
         </div>

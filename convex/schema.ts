@@ -56,7 +56,8 @@ const applicationTables = {
     storyInfo: v.optional(v.object({
       ipId: v.string(),
       vault: v.string(),
-      createdAt: v.number()
+      createdAt: v.number(),
+      licenseTermsId: v.optional(v.string()),
     })),
     tokenSale: v.optional(v.object({
       amount: v.number(),

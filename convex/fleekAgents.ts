@@ -87,7 +87,8 @@ export const saveStoryInfo = mutation({
     sessionId: v.id("sessions"),
     agentId: v.id("agents"),
     ipId: v.string(),
-    vault: v.string()
+    vault: v.string(),
+    licenseTermsId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const session = await ctx.db.get(args.sessionId);
@@ -102,6 +103,7 @@ export const saveStoryInfo = mutation({
       storyInfo: {
         ipId: args.ipId,
         vault: args.vault,
+        licenseTermsId: args.licenseTermsId,
         createdAt: Date.now()
       }
     });

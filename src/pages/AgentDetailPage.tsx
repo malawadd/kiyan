@@ -7,6 +7,7 @@ import { useAuth } from '../WalletAuthProvider';
 import { Id } from "../../convex/_generated/dataModel";
 import { WalletConnection } from "../WalletConnection";
 import { AgentProfile } from '../components/AgentProfile';
+import { MintLicenseTokensPanel } from '../components/MintLicenseTokensPanel';
 
 export function AgentDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -128,7 +129,7 @@ export function AgentDetailPage() {
                       </p>
                       <p>
                         <span className="font-bold">Price per Share:</span>{' '}
-                        {parseFloat(agent.tokenSale.priceWei) / 1e18} ETH
+                        {parseFloat(agent.tokenSale.priceWei) / 1e18} IP
                       </p>
                     </>
                   )}
@@ -137,6 +138,15 @@ export function AgentDetailPage() {
                 <p className="text-gray-500">Not yet registered on Story Protocol</p>
               )}
             </div>
+
+            {/* Mint License Tokens Section */}
+            {agent.storyInfo && agent.storyInfo.ipId && agent.storyInfo.licenseTermsId && agent.storyInfo.vault && (
+              <MintLicenseTokensPanel
+                ipId={agent.storyInfo.ipId}
+                licenseTermsId={agent.storyInfo.licenseTermsId}
+                vault={agent.storyInfo.vault}
+              />
+            )}
 
             {/* Buy Shares Section */}
             {agent.tokenSale && agent.storyInfo && (
@@ -158,7 +168,7 @@ export function AgentDetailPage() {
                   <div className="nb-panel-white p-4">
                     <p className="font-bold">Total Cost</p>
                     <p className="text-2xl font-bold">
-                      {(buyAmount * parseFloat(agent.tokenSale.priceWei) / 1e18).toFixed(4)} ETH
+                      {(buyAmount * parseFloat(agent.tokenSale.priceWei) / 1e18).toFixed(4)} IP
                     </p>
                   </div>
 
@@ -179,7 +189,7 @@ export function AgentDetailPage() {
               <div className="space-y-4">
                 <div className="nb-panel-white p-4">
                   <p className="font-bold">Claimable Revenue</p>
-                  <p className="text-2xl font-bold">0.05 ETH</p>
+                  <p className="text-2xl font-bold">0.05 IP</p>
                 </div>
 
                 <button

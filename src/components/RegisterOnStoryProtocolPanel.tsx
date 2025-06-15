@@ -109,15 +109,24 @@ const PIL_FLAVORS = [
   },
 ];
 
+const TOKEN_OPTIONS = [
+  { label: '$WIP', address: '0x1514000000000000000000000000000000000000' },
+  { label: '$MERC20', address: '0xF2104833d386a2734a4eB3B8ad6FC6812F29E38E' },
+];
+
+const PIL_TEMPLATE_ADDRESS = "0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316"; // Aeneid Testnet
+
+
 export default function RegisterOnStoryProtocolPanel({ agentData, spgNftContract, onRegistered }: {
   agentData?: any;
   spgNftContract: string; //
-  onRegistered?: (result: { ipId: `0x${string}`; txHash: `0x${string}` }) => void;
+  onRegistered?: (result: { ipId: `0x${string}`; txHash: `0x${string}` ; valut: `0x${string}`; licenseTermsId: string }) => void;
 }) {
   const { data: wallet } = useWalletClient();
   const [selected, setSelected] = useState(0);
+  const [token, setToken] = useState(TOKEN_OPTIONS[0].address);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ ipId: `0x${string}`; txHash: `0x${string}` } | null>(null);
+  const [result, setResult] = useState<{ ipId: `0x${string}`; txHash: `0x${string}` ; valut: `0x${string}` ; licenseTermsId: string} | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // For demo, these can be replaced with actual metadata from agentData if needed
@@ -147,18 +156,45 @@ export default function RegisterOnStoryProtocolPanel({ agentData, spgNftContract
         nftMetadataURI: nftImageURI || "nft-image-uri",
         nftMetadataHash: toHex("demo-nft-metadata-hash", { size: 32 }),
       };
+      // Clone and override currency in terms
+      const terms = { ...PIL_FLAVORS[selected].terms, currency: token };
       const response = await client.ipAsset.mintAndRegisterIpAssetWithPilTerms({
         //@ts-ignore
         spgNftContract: spgNftContract,
         //@ts-ignore
-        licenseTermsData: [{ terms: PIL_FLAVORS[selected].terms }],
+        licenseTermsData: [{ terms }],
         ipMetadata,
       });
+      //@ts-ignore
+      console.log("Registration response:", response.licenseTermsIds[0], response.ipId, response.txHash);
+
+      //@ts-ignore
+      const licenseTermsId = response.licenseTermsIds[0];
+      //@ts-ignore
+      const mint = await client.license.mintLicenseTokens({
+      //@ts-ignore
+        licensorIpId: response.ipId,
+        licenseTemplate: PIL_TEMPLATE_ADDRESS, // And here again
+        
+        licenseTermsId:licenseTermsId.toString(),
+        amount: 1,
+        maxMintingFee: BigInt(0), // disabled
+        maxRevenueShare: 100, // default
+      });
+      console.log("Mint response:", mint);
+      //@ts-ignore
+      console.log("Registration response:", response.licenseTermsIds[0], response.ipId, response.txHash);
+
+      //@ts-ignore
+      const vaultAddress = await client.royalty.getRoyaltyVaultAddress(response.ipId);
+      console.log("Vault address:", vaultAddress);
+
+      
 
       //@ts-ignore
       setResult({ ipId: response.ipId, txHash: response.txHash });
       //@ts-ignore
-      if (onRegistered) onRegistered({ ipId: response.ipId, txHash: response.txHash });
+      if (onRegistered) onRegistered({ ipId: response.ipId, txHash: response.txHash, valut: vaultAddress, licenseTermsId: licenseTermsId.toString() });
     } catch (err: any) {
       setError(err.message || "Failed to register.");
     } finally {
@@ -169,6 +205,18 @@ export default function RegisterOnStoryProtocolPanel({ agentData, spgNftContract
   return (
     <div className="nb-panel p-6 mt-6">
       <h2 className="text-xl font-bold mb-3">Step 2: Register as IP on Story Protocol</h2>
+      <div className="mb-4">
+        <label className="block text-sm font-bold mb-2">Currency</label>
+        <select
+          value={token}
+          onChange={e => setToken(e.target.value)}
+          className="nb-input w-full px-4 py-2 border-2 border-black rounded-md mb-2"
+        >
+          {TOKEN_OPTIONS.map(opt => (
+            <option key={opt.address} value={opt.address}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
       <div className="grid gap-4 mb-6">
         {PIL_FLAVORS.map((flavor, idx) => (
           <label

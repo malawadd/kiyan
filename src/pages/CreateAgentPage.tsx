@@ -26,7 +26,7 @@ export function CreateAgentPage() {
   const [showEditPopover, setShowEditPopover] = useState(false);
   
   // Step 3: Story Protocol registration
-  const [storyProtocolResult, setStoryProtocolResult] = useState<{ ipId: string; txHash: string } | null>(null);
+  const [storyProtocolResult, setStoryProtocolResult] = useState<{ ipId: string; txHash: string, valut: string, licenseTermsId: string} | null>(null);
     
   // Convex mutations
   const importAgent = useAction(api.fleekAgents.importAgent);
@@ -44,6 +44,7 @@ export function CreateAgentPage() {
         fleekId,
         fleekKey
       });
+      console.log("Imported agent:", result);
       setAgentId(result.agentId);
       setAgentData(result.agentData);
       setStep(2);
@@ -53,7 +54,7 @@ export function CreateAgentPage() {
   };
 
   // After registration, optionally save to backend and navigate, or show next steps
-  const handleRegistered = async (result: { ipId: string; txHash: string }) => {
+  const handleRegistered = async (result: { ipId: string; txHash: string, valut: string, licenseTermsId:string }) => {
     setStoryProtocolResult(result);
 
     if (sessionId && agentId) {
@@ -62,7 +63,8 @@ export function CreateAgentPage() {
           sessionId,
           agentId,
           ipId: result.ipId,
-          vault: "" // Add vault if needed
+          vault: result.valut,
+          licenseTermsId: result.licenseTermsId
         });
       } catch {
         // Optionally handle error, but don't block UX
