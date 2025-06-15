@@ -138,3 +138,69 @@ export const sellTokens = mutation({
     return true;
   }
 });
+
+// Update agent via Fleek API and sync with Convex
+export const updateAgentViaFleek = action({
+  args: {
+    sessionId: v.id("sessions"),
+    agentId: v.id("agents"),
+    apiKey: v.string(),
+    updateData: v.object({
+      name: v.optional(v.string()),
+      avatar: v.optional(v.string()),
+      characterFile: v.optional(v.string()),
+      publicChat: v.optional(v.boolean()),
+      tee: v.optional(v.boolean())
+    })
+  },
+  handler: async (
+    ctx: ActionCtx,
+    args
+  ): Promise<any> => {
+    const session: any = await ctx.runQuery(api.walletAuth.getCurrentUser, { sessionId: args.sessionId });
+    if (!session) throw new Error("Invalid session");
+
+    const agent: any = await ctx.runQuery(api.agents.getAgent, { sessionId: args.sessionId, agentId: args.agentId });
+    if (!agent || agent.userId !== session._id) {
+      throw new Error("Agent not found or access denied");
+    }
+
+    const response: Response = await fetch(`https://api.fleek.xyz/api/v1/ai-agents/${agent.fleekId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': args.apiKey
+      },
+      body: JSON.stringify(args.updateData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Fleek API error: ${response.statusText}`);
+    }
+
+    const updatedFleekData: any = await response.json();
+
+    await ctx.runMutation(api.fleekAgents.syncAgentFromFleek, {
+      agentId: args.agentId,
+      fleekData: updatedFleekData
+    });
+
+    return updatedFleekData;
+  }
+});
+
+// Sync agent data from Fleek response
+export const syncAgentFromFleek = mutation({
+  args: {
+    agentId: v.id("agents"),
+    fleekData: v.any()
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.agentId, {
+      name: args.fleekData.name,
+      fleekData: args.fleekData,
+      
+    });
+    return true;
+  }
+});

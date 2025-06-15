@@ -5,7 +5,6 @@ import { api } from '../convex/_generated/api';
 import { WalletStatusPanel } from "./WalletStatusPanel";
 import { WalletConnection } from "./WalletConnection";
 import { useAuth } from "./WalletAuthProvider";
-import { CreateAgentModal } from "./components/CreateAgentModal";
 import { FundAgentModal } from "./components/FundAgentModal";
 
 export function TradingDashboard() {
@@ -77,6 +76,10 @@ export function TradingDashboard() {
     return `${days}d ago`;
   };
 
+  const handleNavigateToCreateAgent = () => {
+    void navigate('/create-agent');
+  };
+
   return (
     <div className="min-h-screen nb-grid-bg">
       {/* Navigation */}
@@ -87,9 +90,14 @@ export function TradingDashboard() {
             <div className="flex space-x-6">
               <Link to="/" className="font-bold text-black hover:underline">Dashboard</Link>
               {!isGuest && (
-                <Link to="/create-agent" className="font-bold text-gray-600 hover:text-black hover:underline">
-                  Import Agent
-                </Link>
+                <>
+                  <Link to="/create-agent" className="font-bold text-gray-600 hover:text-black hover:underline">
+                    Import Agent
+                  </Link>
+                  <Link to="/my-agents" className="font-bold text-gray-600 hover:text-black hover:underline">
+                    My Agents
+                  </Link>
+                </>
               )}
               <button className="font-bold text-gray-600 hover:text-black hover:underline">Funds</button>
               <button className="font-bold text-gray-600 hover:text-black hover:underline">Analytics</button>
@@ -122,7 +130,7 @@ export function TradingDashboard() {
             }
           </p>
           <button 
-            onClick={() => navigate('/create-agent')}
+            onClick={handleNavigateToCreateAgent}
             className="nb-button-accent px-6 py-3 text-lg"
             disabled={isGuest}
           >
@@ -228,7 +236,7 @@ export function TradingDashboard() {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">🤖 Your Trading Agents</h3>
               <button 
-                onClick={() => navigate('/create-agent')}
+                onClick={handleNavigateToCreateAgent}
                 className="nb-button px-4 py-2 text-sm"
                 disabled={isGuest}
               >

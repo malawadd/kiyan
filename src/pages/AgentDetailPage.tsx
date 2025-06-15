@@ -6,6 +6,7 @@ import { api } from '../../convex/_generated/api';
 import { useAuth } from '../WalletAuthProvider';
 import { Id } from "../../convex/_generated/dataModel";
 import { WalletConnection } from "../WalletConnection";
+import { AgentProfile } from '../components/AgentProfile';
 
 export function AgentDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -53,38 +54,45 @@ export function AgentDetailPage() {
   }
 
   return (
-    <div className="min-h-screen nb-grid-bg ">
-        <nav className="nb-panel-white p-4 m-4 mb-6">
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center space-x-8">
-                            <h1 className="text-2xl font-bold">🤖 Kiyan</h1>
-                            <div className="flex space-x-6">
-                              <Link to="/" className="font-bold text-gray-600 hover:text-black hover:underline">Dashboard</Link>
-                              {!isGuest && (
-                                <Link to="/create-agent" className="font-bold text-black  hover:underline">
-                                  Import Agent
-                                </Link>
-                              )}
-                              <button className="font-bold text-gray-600 hover:text-black hover:underline">Funds</button>
-                              <button className="font-bold text-gray-600 hover:text-black hover:underline">Analytics</button>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-4">
-                            <span className="font-bold">
-                              Welcome, {user?.name || 'Trader'}!
-                              {isGuest && <span className="text-sm text-gray-600"> (Guest)</span>}
-                            </span>
-                            {!isGuest && <WalletConnection />}
-                            <button 
-                              onClick={signOut}
-                              className="nb-button px-4 py-2 text-sm font-bold"
-                            >
-                              Sign Out
-                            </button>
-                          </div>
-                        </div>
-                      </nav>
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen nb-grid-bg">
+      {/* Navigation */}
+      <nav className="nb-panel-white p-4 m-4 mb-6">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-8">
+            <h1 className="text-2xl font-bold">🤖 Kiyan</h1>
+            <div className="flex space-x-6">
+              <Link to="/" className="font-bold text-gray-600 hover:text-black hover:underline">Dashboard</Link>
+              {!isGuest && (
+                <>
+                  <Link to="/create-agent" className="font-bold text-gray-600 hover:text-black hover:underline">
+                    Import Agent
+                  </Link>
+                  <Link to="/my-agents" className="font-bold text-gray-600 hover:text-black hover:underline">
+                    My Agents
+                  </Link>
+                </>
+              )}
+              <button className="font-bold text-gray-600 hover:text-black hover:underline">Funds</button>
+              <button className="font-bold text-gray-600 hover:text-black hover:underline">Analytics</button>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <span className="font-bold">
+              Welcome, {user?.name || 'Trader'}!
+              {isGuest && <span className="text-sm text-gray-600"> (Guest)</span>}
+            </span>
+            {!isGuest && <WalletConnection />}
+            <button 
+              onClick={signOut}
+              className="nb-button px-4 py-2 text-sm font-bold"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <div className="max-w-6xl mx-auto space-y-6 px-4">
         {/* Header */}
         <div className="nb-panel-white p-6">
           <h1 className="text-2xl font-bold mb-2">{agent.name}</h1>
@@ -92,18 +100,14 @@ export function AgentDetailPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Agent Info */}
-          <div className="space-y-6">
-            {agent.fleekData?.avatar && (
-              <div className="nb-panel-white p-4">
-                <img 
-                  src={`data:image/png;base64,${agent.fleekData.avatar}`}
-                  alt={agent.name}
-                  className="w-full rounded-lg"
-                />
-              </div>
-            )}
+          {/* Left Column - Agent Profile */}
+          {agent.fleekData && (
+            <AgentProfile fleekData={agent.fleekData} />
+          )}
 
+          {/* Right Column - Trading & Revenue Info */}
+          <div className="space-y-6">
+            {/* IP Information */}
             <div className="nb-panel p-6">
               <h2 className="text-xl font-bold mb-4">IP Information</h2>
               {agent.storyInfo ? (
@@ -133,11 +137,8 @@ export function AgentDetailPage() {
                 <p className="text-gray-500">Not yet registered on Story Protocol</p>
               )}
             </div>
-          </div>
 
-          {/* Actions */}
-          <div className="space-y-6">
-            {/* Buy Shares */}
+            {/* Buy Shares Section */}
             {agent.tokenSale && agent.storyInfo && (
               <div className="nb-panel-accent p-6">
                 <h2 className="text-xl font-bold mb-4">Buy Shares</h2>
@@ -172,7 +173,7 @@ export function AgentDetailPage() {
               </div>
             )}
 
-            {/* Claim Revenue */}
+            {/* Claim Revenue Section */}
             <div className="nb-panel-success p-6">
               <h2 className="text-xl font-bold mb-4">Revenue</h2>
               <div className="space-y-4">

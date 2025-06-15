@@ -27,3 +27,5 @@ dist-ssr
 package-lock.json
 /.cursor
 /.github
+AgentDetailPage copy.tsx
+convex/fleekAgents copy.ts
