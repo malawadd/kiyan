@@ -204,3 +204,73 @@ export const syncAgentFromFleek = mutation({
     return true;
   }
 });
+
+// Start an agent via Fleek API
+export const startAgentViaFleek = action({
+  args: {
+    sessionId: v.id("sessions"),
+    agentId: v.id("agents"),
+    apiKey: v.string(),
+  },
+  handler: async (ctx, args): Promise<{ success: boolean }> => {
+    const session: any = await ctx.runQuery(api.walletAuth.getCurrentUser, { sessionId: args.sessionId });
+    if (!session) throw new Error("Invalid session");
+    const agent: any = await ctx.runQuery(api.agents.getAgent, { sessionId: args.sessionId, agentId: args.agentId });
+    if (!agent || agent.userId !== session._id) {
+      throw new Error("Agent not found or access denied");
+    }
+    const response: Response = await fetch(`https://api.fleek.xyz/api/v1/ai-agents/${agent.fleekId}/start`, {
+      method: 'POST',
+      headers: {
+        'X-Api-Key': args.apiKey
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`Fleek API error: ${response.statusText}`);
+    }
+    // Optionally update agent status in DB
+    await ctx.runMutation(api.fleekAgents.setAgentStatus, { agentId: args.agentId, status: "active" });
+    return { success: true };
+  }
+});
+
+// Stop an agent via Fleek API
+export const stopAgentViaFleek = action({
+  args: {
+    sessionId: v.id("sessions"),
+    agentId: v.id("agents"),
+    apiKey: v.string(),
+  },
+  handler: async (ctx, args): Promise<{ success: boolean }> => {
+    const session: any = await ctx.runQuery(api.walletAuth.getCurrentUser, { sessionId: args.sessionId });
+    if (!session) throw new Error("Invalid session");
+    const agent: any = await ctx.runQuery(api.agents.getAgent, { sessionId: args.sessionId, agentId: args.agentId });
+    if (!agent || agent.userId !== session._id) {
+      throw new Error("Agent not found or access denied");
+    }
+    const response: Response = await fetch(`https://api.fleek.xyz/api/v1/ai-agents/${agent.fleekId}/stop`, {
+      method: 'POST',
+      headers: {
+        'X-Api-Key': args.apiKey
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`Fleek API error: ${response.statusText}`);
+    }
+    // Optionally update agent status in DB
+    await ctx.runMutation(api.fleekAgents.setAgentStatus, { agentId: args.agentId, status: "stopped" });
+    return { success: true };
+  }
+});
+
+// Helper mutation to update agent status in DB
+export const setAgentStatus = mutation({
+  args: {
+    agentId: v.id("agents"),
+    status: v.union(v.literal("active"), v.literal("stopped"), v.literal("paused")),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.agentId, { status: args.status });
+    return true;
+  }
+});

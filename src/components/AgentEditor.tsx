@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useAction } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
+import { StartStopAgentButton } from './StartStopAgentButton';
 
 interface AgentEditorProps {
   agent: {
@@ -46,7 +47,7 @@ export function AgentEditor({ agent, apiKey, sessionId }: AgentEditorProps) {
   }, [agent._id, apiKey, characterData, sessionId, updateAgent]);
 
   const updateField = useCallback((path: string[], value: any) => {
-    setCharacterData(prev => {
+    setCharacterData((prev: any) => {
       const newData = { ...prev };
       let current = newData;
       for (let i = 0; i < path.length - 1; i++) {
@@ -65,12 +66,22 @@ export function AgentEditor({ agent, apiKey, sessionId }: AgentEditorProps) {
     <div className="nb-panel p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-2xl font-bold">{agent.name}</h3>
-        <button
-          onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-          className="nb-button-accent px-4 py-2"
-        >
-          {isEditing ? 'Save Changes' : 'Edit Agent'}
-        </button>
+        <div className="flex gap-2 items-center">
+          <button
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+            className="nb-button-accent px-4 py-2"
+          >
+            {isEditing ? 'Save Changes' : 'Edit Agent'}
+          </button>
+          <StartStopAgentButton
+            agentId={agent._id}
+            status={agent.fleekData.status || 'stopped'}
+            sessionId={sessionId}
+            apiKey={apiKey}
+            onStatusChange={() => { /* Optionally refetch or update UI */ }}
+          />
+        </div>
       </div>
 
       {error && (
