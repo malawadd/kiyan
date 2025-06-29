@@ -29,3 +29,4 @@ package-lock.json
 /.github
 AgentDetailPage copy.tsx
 convex/fleekAgents copy.ts
+.env
